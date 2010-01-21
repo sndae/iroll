@@ -131,7 +131,7 @@ public class PlayGame extends Activity
 								
 							/* Key 1 */
 							case 12:
-								resetButton.setText("Door 1 Activated");								
+								resetButton.setText("Door 1 Opened");								
 								/* Changes on ImageViews */
 								key1View.setVisibility(View.INVISIBLE);
 								mapView.setImageResource(R.drawable.map_r1_480x542);					
@@ -141,7 +141,7 @@ public class PlayGame extends Activity
 							
 							/* Key 2 */
 							case 13:
-								resetButton.setText("Door 2 Activated");
+								resetButton.setText("Door 2 Opened");
 								/* Changes on ImageViews */
 								key2View.setVisibility(View.INVISIBLE);
 								mapView.setImageResource(R.drawable.map_r2_480x542);					
