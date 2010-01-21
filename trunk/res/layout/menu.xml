@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+
+<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/background" android:layout_gravity="center" android:src="@drawable/welcome"></ImageView>
+  
+<TextView android:id="@+id/TextView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="28px"></TextView>
+
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/phyButton" android:layout_gravity="center" android:text="Physics Data" android:textSize="32px"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/rollButton" android:text="Test Rolling" android:layout_gravity="center" android:textSize="32px"></Button>
+<Button android:text="Play iRoll" android:id="@+id/playButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:textSize="32px"></Button>
+<Button android:text="Exit" android:id="@+id/exitButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:textSize="32px"></Button>
+
+</LinearLayout>
