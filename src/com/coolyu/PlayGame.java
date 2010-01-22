@@ -81,7 +81,7 @@ public class PlayGame extends Activity
         resetButton = (Button) findViewById(R.id.gameReset);
         resetButton.setOnClickListener(this);
         timerView = (TextView) findViewById(R.id.timer);
-        df = new DecimalFormat("##0.000");
+        df = new DecimalFormat("0.000");
         
         /* This is where we really create Point, Physicist, BallRolling objects */
         p = new PointFloat(initX, initY + BUTTON_HEIGHT);
