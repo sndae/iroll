@@ -3,6 +3,7 @@ package com.coolyu;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.text.DecimalFormat;
 import android.app.Activity;
 import android.content.*;
 import android.hardware.SensorListener;
@@ -10,8 +11,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.AbsoluteLayout;
 import android.widget.AbsoluteLayout.LayoutParams;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.*;
 import android.view.View;
 
 /* Map symbols:
@@ -41,12 +41,17 @@ public class PlayGame extends Activity
 	private ImageView mapView;
 	private Button backButton;
 	private Button resetButton;
+	private TextView timerView;
 	
 	private PointFloat p;
 	private Physicist Newton;
 	private BallRolling ballBoy;
 	private DataReader reader;
 	private GameData data;
+
+	private long tic;
+	private long toc;
+	private DecimalFormat df;
 	
 	BufferedReader finMap;
 	BufferedReader finBall;
@@ -75,6 +80,8 @@ public class PlayGame extends Activity
         backButton.setOnClickListener(this);
         resetButton = (Button) findViewById(R.id.gameReset);
         resetButton.setOnClickListener(this);
+        timerView = (TextView) findViewById(R.id.timer);
+        df = new DecimalFormat("##0.000");
         
         /* This is where we really create Point, Physicist, BallRolling objects */
         p = new PointFloat(initX, initY + BUTTON_HEIGHT);
@@ -105,6 +112,9 @@ public class PlayGame extends Activity
 			// Define a class here
 			public void onSensorChanged(int sensor, float[] values) {
 				/* Everything we need to do when the sensor data change */
+				/* [0] Update the timer */
+				toc = System.currentTimeMillis();
+				timerView.setText(df.format((toc - tic) / 1000.0) + " s");
 				
 				/* [1] Read in the normal vector (x,y,z) */
 				final float sensorX = values[SensorManager.DATA_X];
@@ -115,8 +125,8 @@ public class PlayGame extends Activity
 				ballBoy.roll(sensorX, sensorY, sensorZ);
 				
 				/* [3] Detect any map objects within the ball */
-				/* For any pixel "reachable" to the Point p(x,y) */
-				for (int y = data.ballYStart, i = 0; y <= data.ballYEnd; y++, i++) {
+				/* For all pixels "reachable" to the Point p(x,y) */
+allPixels:		for (int y = data.ballYStart, i = 0; y <= data.ballYEnd; y++, i++) {
 					for (int x = data.ballX[i].start; x <= data.ballX[i].end; x++) {
 						char pixel = data.map[(int)p.y - (int)BUTTON_HEIGHT + y][(int)p.x + x];
 						
@@ -126,34 +136,42 @@ public class PlayGame extends Activity
 							case 2:
 							case 3:
 								resetButton.setText("You Lost!!");
-								reset();
-								break;
+								/* Unregister SensorListener so that the screenshot stays still 
+								 * Reregister when "Reset" is pressed */
+								mySM.unregisterListener(mySL);
+								break allPixels;
 								
 							/* Key 1 */
 							case 12:
+								/* Reset all motion quantities to avoid immediate death */
+								Newton.reset();
+								/* Changes on display */
 								resetButton.setText("Door 1 Opened");								
-								/* Changes on ImageViews */
 								key1View.setVisibility(View.INVISIBLE);
 								mapView.setImageResource(R.drawable.map_r1_480x542);					
 								/* Clear the key1 and door1 areas on data.map */
 								clearKeyAndDoor(1);
-								break;
+								break allPixels;
 							
 							/* Key 2 */
 							case 13:
+								/* Reset all motion quantities to avoid immediate death */
+								Newton.reset();
+								/* Changes on display */
 								resetButton.setText("Door 2 Opened");
-								/* Changes on ImageViews */
 								key2View.setVisibility(View.INVISIBLE);
 								mapView.setImageResource(R.drawable.map_r2_480x542);					
 								/* Clear the key2 and door2 areas on data.map */
 								clearKeyAndDoor(2);					
-								break;
+								break allPixels;
 								
 							/* Reach the goal!! */
 							case 20:
 								resetButton.setText("You Won!!");
-								reset();
-								break;
+								/* Unregister SensorListener so that the screenshot stays still 
+								 * Reregister when "Reset" is pressed */
+								mySM.unregisterListener(mySL);
+								break allPixels;
 						}  // End of switch (pixel)
 					}
 				}
@@ -168,8 +186,11 @@ public class PlayGame extends Activity
 		}; // End of class SensorListener definition 
 		
         // The SensorManager registers a SensorListener
-        mySM.registerListener(mySL, SensorManager.SENSOR_ACCELEROMETER, SensorManager.SENSOR_DELAY_GAME);        
-    }
+        mySM.registerListener(mySL, SensorManager.SENSOR_ACCELEROMETER, SensorManager.SENSOR_DELAY_GAME);
+
+        // Finally, start the timer
+        tic = System.currentTimeMillis();
+    } // End of onCreate()
     
     @Override
     public void onDestroy() {
@@ -185,24 +206,11 @@ public class PlayGame extends Activity
     		System.gc();
     	}
     	else if (v == resetButton) {
-    		((Button) v).setText("reset");
+    		((Button) v).setText("Reset");
     		reset();
     	}
     }
      
-    /* Reset ball's position to (initX, initY), and stop all the motion quantities */
-    public void reset() {
-    	moveImageTo(ballView, (int) initX, (int) (initY + BUTTON_HEIGHT));
-		p.setValue(initX, initY + BUTTON_HEIGHT);
-		Newton.reset();
-		/* Reset the ImageViews */
-		mapView.setImageResource(R.drawable.map_r0_480x542);
-		key1View.setVisibility(View.VISIBLE);
-		key2View.setVisibility(View.VISIBLE);
-		/* Fill the keys' and doors' reachable area according to ball data */
-		fillKeysAndDoors();
-    }
-    
     /* Move the ImageView to a specified (int x,int y) position */
     public void moveImageTo(ImageView v, int x, int y) {
 		v.setLayoutParams(new AbsoluteLayout.LayoutParams
@@ -276,6 +284,24 @@ public class PlayGame extends Activity
     	fillPoints(data.door1.listIterator(), (char) 2);
     	fillPoints(data.door2.listIterator(), (char) 3);    
     }
+    
+    /* Reset the game */
+    public void reset() {
+    	moveImageTo(ballView, (int) initX, (int) (initY + BUTTON_HEIGHT));
+		p.setValue(initX, initY + BUTTON_HEIGHT);
+		Newton.reset();
+		/* Reset the ImageViews */
+		mapView.setImageResource(R.drawable.map_r0_480x542);
+		key1View.setVisibility(View.VISIBLE);
+		key2View.setVisibility(View.VISIBLE);
+		/* Fill the keys' and doors' reachable area according to ball data */
+		fillKeysAndDoors();
+		/* Re-register SensorListener */
+    	mySM.registerListener(mySL, SensorManager.SENSOR_ACCELEROMETER, SensorManager.SENSOR_DELAY_GAME);
+    	/* Reset timer */
+		tic = System.currentTimeMillis();
+		
+    }    
 }
 
 

@@ -10,4 +10,5 @@
 <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/key1" android:src="@drawable/redstar" android:layout_x="180px" android:layout_y="180px"></ImageView>
 <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_y="180px" android:src="@drawable/redstar" android:layout_x="250px" android:id="@+id/key2"></ImageView>
 <ImageView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/goal" android:src="@drawable/greenstar" android:layout_y="180px" android:layout_x="320px"></ImageView>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Timer" android:layout_y="465px" android:id="@+id/timer" android:textSize="48px" android:layout_x="170px"></TextView>
 </AbsoluteLayout>
