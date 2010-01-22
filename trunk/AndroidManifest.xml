@@ -14,5 +14,5 @@
 		<activity android:name="ShowPhysicsData"></activity>
 		<activity android:name="TestRolling"></activity>
 		<activity android:name="PlayGame"></activity>
-</application>
+	</application>
 </manifest> 
